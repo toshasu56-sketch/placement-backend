@@ -10,12 +10,10 @@ CORS(app)
 @app.route('/')
 def home_page():
     return "Flask is working!"
-model = pickle.load(open("catboost_model.pkl", "rb"))
+model, training_columns = pickle.load(open("catboost_model.pkl", "rb"))
 
 # 3️⃣ Routes (PUT YOUR CODE HERE 👇)
-@app.route("/")
-def home():
-    return "API is running 🚀"
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -39,9 +37,11 @@ def predict():
     # ✅ STEP 4: PREDICT
     prediction = model.predict(input_df)
     print("Prediction:", prediction)
+    # Convert to readable result
+    result = "Congratulations! You are placed." if prediction[0] == 1 else "Sorry, you are not placed."
+    
 
-    return jsonify({'prediction': str(prediction[0])})
-
+    return jsonify({'prediction': result})
 
 # 🔹 Load dataset
 df = pd.read_csv("placementdata.csv")
