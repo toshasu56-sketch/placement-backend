@@ -1,4 +1,5 @@
 import pickle
+import os
 from flask import Flask, request, jsonify
 import pandas as pd
 from flask import Flask
@@ -10,7 +11,10 @@ CORS(app)
 @app.route('/')
 def home_page():
     return "Flask is working!"
-model, training_columns = pickle.load(open("catboost_model.pkl", "rb"))
+BASE_DIR = os.path.dirname(__file__)  # G:\placement_project
+MODEL_PATH = os.path.join(BASE_DIR, "catboost_model.pkl")
+
+model, training_columns = pickle.load(open(MODEL_PATH, "rb"))
 
 # 3️⃣ Routes (PUT YOUR CODE HERE 👇)
 
@@ -347,6 +351,8 @@ def predict_placement(sample):
 
     return "Placed" if prediction[0] == 1 else "Not Placed"
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False)
+      port = int(os.environ.get("PORT", 10000))
+      app.run(host="0.0.0.0", port=port)
+      app.run(debug=True, use_reloader=False)
 
    
