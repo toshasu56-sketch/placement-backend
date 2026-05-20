@@ -6,11 +6,14 @@ from sklearn.linear_model import LogisticRegression
 # ---------- LOAD DATA ----------
 df = pd.read_csv("placementdata.csv")
 
-# rename column
-df.rename(columns={"Workshops/Certifications": "Workshops_Certifications"}, inplace=True)
+# ---------- CLEAN COLUMN NAMES ----------
+df.rename(columns={
+    "Workshops/Certifications": "Workshops_Certifications"
+}, inplace=True)
 
-# clean target
+# ---------- CLEAN TARGET ----------
 df["PlacementStatus"] = df["PlacementStatus"].astype(str).str.strip().str.lower()
+
 df["PlacementStatus"] = df["PlacementStatus"].replace({
     "placed": 1,
     "notplaced": 0,
@@ -19,20 +22,27 @@ df["PlacementStatus"] = df["PlacementStatus"].replace({
 
 df["PlacementStatus"] = df["PlacementStatus"].astype(int)
 
-# ---------- SPLIT ----------
+# ---------- FEATURES ----------
 X = df.drop("PlacementStatus", axis=1)
 y = df["PlacementStatus"]
 
+# One-hot encoding
 X = pd.get_dummies(X)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+# ⭐ IMPORTANT FIX (Render compatibility)
+X = X.astype("object")
+
+# ---------- SPLIT ----------
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 
 # ---------- MODEL ----------
 model = LogisticRegression(max_iter=3000)
 model.fit(X_train, y_train)
 
-# ---------- SAVE ----------
-with open("catboost_model.pkl", "wb") as f:
-    pickle.dump((model, X.columns), f)
+# ---------- SAVE MODEL ----------
+with open("placement_model.pkl", "wb") as f:
+    pickle.dump((model, X.columns.tolist()), f)
 
-print("Model saved successfully!")
+print("✅ Model trained and saved successfully!")
